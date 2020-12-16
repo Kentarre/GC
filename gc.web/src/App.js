@@ -39,7 +39,7 @@ useEffect(() => {
             })
             .catch(e => console.log('Connection failed: ', e));
     }
-}, [connection]);
+}, [connection]); 
 
 const sendAnswer = async (answer) => {
     if (connection.connectionStarted){
@@ -53,8 +53,7 @@ const resetState = async () => {
     }
 }
 
-const background = {
-  backgroundColor: '#282c34',
+const font = {
   color: 'white'
 }
 
@@ -82,7 +81,7 @@ function renderButtons(challenge){
 
 return (
     <div className="App">
-      <header style={background}>
+      <header style={font}>
         <Container>
           <Row>
             <Col>Clients: {clients}</Col>
@@ -90,10 +89,10 @@ return (
           </Row>
         </Container>
       </header>
-      <header className="App-header">
+      <Container className="App-content">
       <h1>{challenge}</h1>
         {renderButtons(challenge)}
-      </header>
+      </Container>
     </div>
   );
 }
