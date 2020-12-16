@@ -10,7 +10,7 @@ F5 to run application in Visual Studio
 
 ## SignalR configuration
 Copy server application url from browser and replace it in App.js of web project on line 16. It should be place where SignalR hub connection is configured. 
-In the end you should get url e.g. 'https://localhost:<portnumber>/game'
+In the end you should get url e.g. 'https://localhost:portnumber/game'
 
 ## Client 
 Go to web project folder 'GC.web' and open console, 'npm run' to start React web server
