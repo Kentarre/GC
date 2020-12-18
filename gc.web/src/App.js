@@ -11,6 +11,7 @@ function App() {
   const [ disabled, setDisabled ] = useState(true);
   const [ scoreList, setScoreList] = useState([]);
   const [ nickname, setNickname] = useState('');
+  const [ userToDelete, setUserToDelete ] = useState('');
 
   useEffect(() => {
     const con = new HubConnectionBuilder()
@@ -35,7 +36,7 @@ useEffect(() => {
                 });
 
                 connection.on('ClientDisconnected', connectionId => {
-                    var sl = scoreList;
+                    setUserToDelete(connectionId);
                 });
 
                 connection.on('ScoreChange', state => {
@@ -49,6 +50,18 @@ useEffect(() => {
             .catch(e => console.log('Connection failed: ', e));
     }
 }, [connection]); 
+
+useEffect(() => {
+  var users = [...scoreList];
+  var i = users.findIndex(x => x.connectionId === userToDelete)
+
+  if (i == -1)
+    return;
+
+  users.splice(i, 1);
+  setScoreList(users);
+  setUserToDelete('');
+})
 
 const sendAnswer = async (answer) => {
     if (connection.connectionStarted){
