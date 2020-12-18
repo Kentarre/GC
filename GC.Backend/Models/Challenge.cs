@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using GC.Backend.Enums;
 
 namespace GC.Backend.Models
@@ -14,7 +12,7 @@ namespace GC.Backend.Models
         public double Answer { get; internal set; }
         public AnswerType AnswerType { get; internal set; }
 
-        public List<char> Operators => new List<char> { '+', '-', '/', '*' };
+        public List<char> Operators => new List<char> { '+', '/', '*', '-' };
     }
 
     public static class ChallengeGenerator

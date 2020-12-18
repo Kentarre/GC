@@ -10,4 +10,7 @@
     <Folder Include="States\" />
     <Folder Include="Enums\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
 </Project>

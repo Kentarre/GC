@@ -1,4 +1,5 @@
 using GC.Api.Interfaces;
+using GC.Backend;
 using GC.Backend.Interfaces;
 using GC.Backend.States;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +25,7 @@ namespace GC.Api
             {
                 s.AddSingleton<IStateProvider, StateProvider>();
                 s.AddTransient<IDeliverMessages, MessagesDelivery>();
+                s.AddTransient<IGenerateNicknames, NicknameGenerator>();
             });
     }
 }

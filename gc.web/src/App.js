@@ -8,8 +8,9 @@ function App() {
   const [ connection, setConnection ] = useState(null);
   const [ challenge, setChallenge ] = useState('');
   const [ game, setGame ] = useState({userScore: 0});
-  const [ clients, setClients ] = useState(0);
   const [ disabled, setDisabled ] = useState(true);
+  const [ scoreList, setScoreList] = useState([]);
+  const [ nickname, setNickname] = useState('');
 
   useEffect(() => {
     const con = new HubConnectionBuilder()
@@ -33,9 +34,17 @@ useEffect(() => {
                     setGame(state);
                 });
 
-                connection.on('ClientCounterChanged', state => {
-                    setClients(state);
+                connection.on('ClientDisconnected', connectionId => {
+                    var sl = scoreList;
                 });
+
+                connection.on('ScoreChange', state => {
+                    setScoreList(state);
+                });
+
+                connection.on('SetNickname', name => {
+                  setNickname(name);
+                })
             })
             .catch(e => console.log('Connection failed: ', e));
     }
@@ -84,7 +93,7 @@ return (
       <header style={font}>
         <Container>
           <Row>
-            <Col>Clients: {clients}</Col>
+            <Col>{nickname}</Col>
             <Col>Score: {game.userScore}</Col>
           </Row>
         </Container>
@@ -92,6 +101,11 @@ return (
       <Container className="App-content">
       <h1>{challenge}</h1>
         {renderButtons(challenge)}
+        <Container style={{fontSize: 15, paddingTop: 50 }}>
+        { Object.keys(scoreList).map((client, i) => {
+            return <Row className="justify-content-md-center"><Col xs="2" style={font}>{scoreList[i].nickname} : </Col><Col xs="1">{scoreList[i].score}</Col></Row>;
+          })}
+        </Container>
       </Container>
     </div>
   );

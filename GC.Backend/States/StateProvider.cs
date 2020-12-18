@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GC.Backend.Enums;
 using GC.Backend.Interfaces;
 using GC.Backend.Models;
@@ -26,8 +27,9 @@ namespace GC.Backend.States
             };
         }
 
-        public void AddClient(string id) => _state.Clients.Add(id);
-        public void RemoveClient(string id) => _state.Clients.RemoveAll(x => x.Equals(id));
+        public void AddClient(Client client) => _state.Clients.Add(client);
+        public void RemoveClient(string id) => _state.Clients.RemoveAll(x => x.ConnectionId == id);
         public int GetClientsCount() => _state.Clients.Count;
+        public List<Client> GetClients() => _state.Clients;
     }
 }

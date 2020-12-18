@@ -9,6 +9,6 @@ namespace GC.Backend.Models
         public string Challenge { get; set; }
         public bool IsRoundOpen { get; set; }
         public AnswerType Answer { get; set; }
-        public List<string> Clients { get; set; } = new List<string>();
+        public List<Client> Clients { get; set; } = new List<Client>();
     }
 }

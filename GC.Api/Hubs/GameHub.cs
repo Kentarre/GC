@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using GC.Api.Interfaces;
 using GC.Api.Models;
@@ -13,11 +15,13 @@ namespace GC.Api.Hubs
     {
         public readonly IStateProvider _stateProvider;
         public readonly IDeliverMessages _delivery;
+        public readonly IGenerateNicknames _nicknameGenerator;
 
-        public GameHub(IStateProvider stateProvider, IDeliverMessages delivery)
+        public GameHub(IStateProvider stateProvider, IDeliverMessages delivery, IGenerateNicknames generator)
         {
             _stateProvider = stateProvider;
             _delivery = delivery;
+            _nicknameGenerator = generator;
         }
 
         public async Task SendNewChallenge()
@@ -31,8 +35,8 @@ namespace GC.Api.Hubs
 
         public async Task OnMessageReceived(ReceivedMessage message)
         {
-            var connectionId = Context.ConnectionId;
             var currentState = _stateProvider.GetState();
+            var client = currentState.Clients.Where(x => x.ConnectionId == Context.ConnectionId).FirstOrDefault();
 
             if (!currentState.IsRoundOpen)
                 return;
@@ -41,8 +45,16 @@ namespace GC.Api.Hubs
 
             if (isCorrectAnswer)
             {
+                client.Score = isCorrectAnswer
+                    ? message.UserScore + 1
+                    : message.UserScore - 1;
+
+                currentState.Clients[currentState.Clients.FindIndex(x => x.ConnectionId == Context.ConnectionId)] = client;
                 currentState.IsRoundOpen = false;
+
                 _stateProvider.ChangeState(currentState);
+
+                SetScoreList(currentState.Clients);
 
                 await RestartChallenge();
             }
@@ -50,8 +62,8 @@ namespace GC.Api.Hubs
             await _delivery.AnswerMessageDelivery(new Answer
             {
                 IsRightAnswer = isCorrectAnswer,
-                UserScore = isCorrectAnswer ? message.UserScore + 1 : message.UserScore - 1
-            }, connectionId);
+                UserScore = client.Score,
+            }, client.ConnectionId);
         }
 
         public async Task RestartChallenge()
@@ -66,25 +78,39 @@ namespace GC.Api.Hubs
             });
         }
 
-        #region counter
-        public Task OnClientCounterChange()
+        public void SetScoreList(List<Client> clients)
         {
-            var state = _stateProvider.GetState();
+            _delivery.UpdateScoreList(clients);
+        }
 
-            return Clients.All.SendAsync("ClientCounterChanged", state.Clients.Count);
+        #region counter
+        public Task OnClientDisconnect(string connectionId)
+        {
+            return Clients.All.SendAsync("ClientDisconnected", connectionId);
         }
 
         public override Task OnConnectedAsync()
         {
+            var currentState = _stateProvider.GetState();
+
             if (_stateProvider.GetClientsCount() > 9)
             {
                 Context.Abort();
                 return base.OnConnectedAsync();
             }
 
-            _stateProvider.AddClient(Context.ConnectionId);    
+            var nickname = _nicknameGenerator.GenerateAsync()
+                .GetAwaiter()
+                .GetResult();
 
-            OnClientCounterChange();
+            _stateProvider.AddClient(new Client {
+                ConnectionId = Context.ConnectionId,
+                Score = 0,
+                Nickname = nickname
+            });
+
+            SetScoreList(currentState.Clients);
+            SetNickname(nickname, Context.ConnectionId);
 
             return base.OnConnectedAsync();
         }
@@ -92,9 +118,14 @@ namespace GC.Api.Hubs
         public override Task OnDisconnectedAsync(Exception exception)
         {
             _stateProvider.RemoveClient(Context.ConnectionId);
-            OnClientCounterChange();
+            OnClientDisconnect(Context.ConnectionId);
 
             return base.OnDisconnectedAsync(exception);
+        }
+
+        public void SetNickname(string nickname, string connectionId)
+        {
+            _delivery.SetNickname(nickname, connectionId);
         }
         #endregion
     }

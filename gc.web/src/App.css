@@ -16,3 +16,10 @@
 .App-link {
   color: #61dafb;
 }
+
+.App-scoreList{
+  font-size: 15; 
+  padding-top: 50;
+  align-items: center;
+  justify-content: center;
+}
