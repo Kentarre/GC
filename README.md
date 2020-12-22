@@ -13,7 +13,7 @@ Copy server application url from browser and replace it in App.js of web project
 In the end you should get url e.g. 'https://localhost:portnumber/game'
 
 ## Client 
-Go to web project folder 'GC.web' and open console, 'npm run' to start React web server
+Go to web project folder 'GC.web' and open console, 'npm install' and 'npm run' to start React web server
 
 ## Tech-stack 
 ```.NET Core 3.1, SignalR, ReactJS, Bootstrap```
